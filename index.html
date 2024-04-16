@@ -18,13 +18,12 @@
         <div class="main mt-5">
 
             <div class="input-group mb-3 shadow-lg p-2 mb-5 bg-body-tertiary rounded-4">
-                <input type="text" class="form-control p-3" placeholder="Recipient's username"
-                    aria-label="Recipient's username" aria-describedby="button-addon2">
+                <input type="text" class="form-control p-3" placeholder="Search by name drink and ingredients"
+                    aria-label="Search by name drink and ingredients" aria-describedby="button-addon2">
                 <button class="btn btn-outline-secondary bg-dark" type="button" id="button-addon2">Search</button>
             </div>
 
             <div id="row" class="row">
-            
             </div>
         </div>
     </div>
@@ -62,8 +61,8 @@
 
             let img = document.createElement('img')
             img.className = 'card-img-top'
-            img.src = ''
-            img.alt = ''
+            img.src = `${drink.strDrinkThumb}`
+            img.alt = `${drink.strDrink}`
             card.appendChild(img)
 
             let div = document.createElement('div')
