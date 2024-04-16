@@ -18,12 +18,26 @@
         <div class="main mt-5">
 
             <div class="input-group mb-3 shadow-lg p-2 mb-5 bg-body-tertiary rounded-4">
-                <input id="input" type="text" class="form-control p-3" placeholder="Margarita"
-                    aria-label="Margarita" aria-describedby="button-addon2">
+                <input id="input" type="text" class="form-control p-3" placeholder="Search coctails"
+                    aria-label="Search coctails" aria-describedby="button-addon2">
                 <button class="btn btn-outline-secondary bg-dark" type="button" id="button-addon2">Search</button>
             </div>
 
             <div id="row" class="row">
+            </div>
+
+            <div id="modal" class="modal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 id="modal-title" class="modal-title"></h5>
+                            <button id="close" onclick="closeModal()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="main-info"></p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -42,13 +56,48 @@
                 return response.json();
             })
             .then(function(data) {
-                row.innerHTML = ''
-                for (const drink of data.drinks) {
-                    console.log(drink)
-                    makeCard(drink)
+                if(data.drinks == null) {
+                     row.innerHTML = `<div class="text-center text-white fs-1 text-uppercase">Drinks by ${name} is not
+                        found</div>`
+                } else {
+                    row.innerHTML = ''
+                    for (const drink of data.drinks) {
+                        console.log(drink)
+                        makeCard(drink)
+                    }
                 }
             })
-        });
+        })
+        
+        const row = document.getElementById('row')
+
+        function makeCard(drink) {
+            let col = document.createElement('div')
+            col.className = 'col-sm-4'
+
+            let card = document.createElement('div')
+            card.classList.add('card', 'shadow-lg', 'p-3', 'mb-5', 'bg-body-tertiary', 'rounded-4')
+            card.style.width = '18rem'
+            card.id = 'card'
+            col.appendChild(card)
+
+            let img = document.createElement('img')
+            img.className = 'card-img-top'
+            img.src = `${drink.strDrinkThumb}`
+            img.alt = `${drink.strDrink}`
+            card.appendChild(img)
+
+            let div = document.createElement('div')
+            div.className = 'card-body'
+            div.innerHTML = `<h5>${drink.strDrink}</h5>`
+            card.appendChild(div)
+
+            card.addEventListener('click', () => {
+                getInfoAboutCoctail(drink)
+            });
+
+            row.appendChild(col)
+        }
 
         function getCoctails() {
             fetch('https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita')
@@ -64,30 +113,23 @@
            
         }
 
-        
-        const row = document.getElementById('row')
+        const modal = document.getElementById('modal');
+        const close = document.getElementById('close');
 
-        function makeCard(drink) {
-            let col = document.createElement('div')
-            col.className = 'col-sm-4'
+        function closeModal() {
+            modal.classList.remove('show')
+            modal.style.display = 'none'
+        }
 
-            let card = document.createElement('div')
-            card.classList.add('card', 'shadow-lg', 'p-3', 'mb-5', 'bg-body-tertiary', 'rounded-4')
-            card.style.width = '18rem'
-            col.appendChild(card)
+        function getInfoAboutCoctail(drink) {
+            modal.classList.add('show');
+            modal.style.display = 'block';
 
-            let img = document.createElement('img')
-            img.className = 'card-img-top'
-            img.src = `${drink.strDrinkThumb}`
-            img.alt = `${drink.strDrink}`
-            card.appendChild(img)
+            let title = document.getElementById('modal-title')
+            let info = document.getElementById('main-info')
 
-            let div = document.createElement('div')
-            div.className = 'card-body'
-            div.innerHTML = `<h5>${drink.strDrink}</h5>`
-            card.appendChild(div)
-            
-            row.appendChild(col)
+            title.innerText = `${drink.strDrink}`
+            info.innerText = `${drink.strInstructions}`
         }
     </script>
 
