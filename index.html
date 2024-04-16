@@ -18,8 +18,8 @@
         <div class="main mt-5">
 
             <div class="input-group mb-3 shadow-lg p-2 mb-5 bg-body-tertiary rounded-4">
-                <input type="text" class="form-control p-3" placeholder="Search by name drink and ingredients"
-                    aria-label="Search by name drink and ingredients" aria-describedby="button-addon2">
+                <input id="input" type="text" class="form-control p-3" placeholder="Margarita"
+                    aria-label="Margarita" aria-describedby="button-addon2">
                 <button class="btn btn-outline-secondary bg-dark" type="button" id="button-addon2">Search</button>
             </div>
 
@@ -32,6 +32,23 @@
         addEventListener('load', () => {
             getCoctails()
         })
+
+        let btn = document.getElementById("button-addon2");
+        btn.addEventListener("click", function() {
+            let name = document.getElementById("input").value;
+
+            fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${name}`)
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                row.innerHTML = ''
+                for (const drink of data.drinks) {
+                    console.log(drink)
+                    makeCard(drink)
+                }
+            })
+        });
 
         function getCoctails() {
             fetch('https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita')
