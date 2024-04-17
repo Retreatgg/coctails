@@ -23,8 +23,7 @@
                 <button class="btn btn-outline-secondary bg-dark" type="button" id="button-addon2">Search</button>
             </div>
 
-            <div id="row" class="row">
-            </div>
+            <div id="row" class="row"></div>
 
             <div id="modal" class="modal" tabindex="-1">
                 <div class="modal-dialog">
@@ -40,6 +39,21 @@
                             <div id="more-info" class="mt-3"></div>
                             <p id="main-info" class="text-lg-center text-uppercase"><strong>Instruction</strong></p>
                             <div id="instruction" class=""></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modal-ingredient" class="modal shadow-lg " tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 id="modal-ingredient-title" class="modal-title"></h5>
+                            <button type="button" onclick="closeModalIngredient()" class="btn-close"
+                                data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div id="card-body-ingredient" class="modal-body">
+                            <p>Modal body text goes here.</p>
                         </div>
                     </div>
                 </div>
@@ -149,15 +163,28 @@
             let ingredientsHTML = '';
 
             ingredietns.forEach(info => {
-                ingredientsHTML += `
-                    <li class="list-group-item">
-                        <img src="https://www.thecocktaildb.com/images/ingredients/${info.ingredient}-Small.png"
-                            style="width: 40px; height: 40px;" alt+" ${info.ingredient}">
-                        ${info.ingredient} (${info.measure})
-                    </li>`;
+                console.log(info)
+                let li = document.createElement('li')
+                li.className = 'list-group-item'
+                
+                let imgCoctail = document.createElement('img')
+                imgCoctail.src = `https://www.thecocktaildb.com/images/ingredients/${info.ingredient}-Small.png`
+                imgCoctail.alt = `${info.ingredient}`
+                imgCoctail.style.height = '40px'
+                imgCoctail.style.width = '40px'
+                
+                li.appendChild(imgCoctail)
+                let span = document.createElement('span')
+                span.textContent = `${info.ingredient} (${info.measure})`
+                li.appendChild(span)
+
+                li.addEventListener('click', () => {
+                    geInfoAboutIngredient(info.ingredient)
+                })
+
+                list.appendChild(li)
             });
 
-            list.innerHTML = `${ingredientsHTML}`
             moreInfo.innerHTML = `
                 <p class="mb-0"><strong>Is alcoholic:</strong> ${drink.strAlcoholic}</p>
                 <p class="mb-0"><strong>Category:</strong> ${drink.strCategory}</p>
@@ -166,6 +193,39 @@
 
             instruction.innerHTML = `<p class="mb-0">${drink.strInstructions}</p>`;
 
+            
+        }
+
+        let modalIngredient = document.getElementById('modal-ingredient')
+        let ingredientTitle = document.getElementById('modal-ingredient-title')
+        let ingredientBody = document.getElementById('card-body-ingredient')
+
+        function closeModalIngredient() {
+        modalIngredient.classList.remove('show')
+        modalIngredient.style.display = 'none'
+        }
+
+        function geInfoAboutIngredient(name) {
+            modalIngredient.classList.add('show');
+            modalIngredient.style.display = 'block';
+
+            console.log(name)
+            fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?i=${name}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.ingredients)
+                cardIngredients(data.ingredients[0])
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function cardIngredients(ingredient) {
+            ingredientTitle.innerText = `${ingredient.strIngredient}`
+            ingredientBody.innerHTML = `
+                <p>${ingredient.strDescription}</p>
+                <p><strong>Low alcohol by volume:</strong> ${ingredient.strABV}</p>
+                <p><strong>Type:</strong> ${ingredient.strType}</p>
+            `
         }
     </script>
 
