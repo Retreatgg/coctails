@@ -34,7 +34,9 @@
                             <button id="close" onclick="closeModal()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <p id="main-info"></p>
+                            <p id="main-info" class="text-lg-center text-uppercase">Ingredients</p>
+                            <ul id="list" class="list-group list-group-flush">
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -110,7 +112,6 @@
                     makeCard(drink)
                 }
             })
-           
         }
 
         const modal = document.getElementById('modal');
@@ -126,10 +127,25 @@
             modal.style.display = 'block';
 
             let title = document.getElementById('modal-title')
-            let info = document.getElementById('main-info')
+            let list = document.getElementById('list')
+            let ingredietns = []
+
+            for (let index = 1; drink[`strIngredient${index}`] != undefined; index++) {
+                ingredietns.push(drink[`strIngredient${index}`])
+            }
+
+            console.log(ingredietns)
 
             title.innerText = `${drink.strDrink}`
-            info.innerText = `${drink.strInstructions}`
+            console.log(drink.strIngredient1)
+            let ingredientsHTML = '';
+
+            ingredietns.forEach(ing => {
+                ingredientsHTML += `<li class="list-group-item">${ing}</li>`;
+            });
+
+            list.innerHTML = `${ingredientsHTML}`
+
         }
     </script>
 
