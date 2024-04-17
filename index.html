@@ -45,7 +45,7 @@
             </div>
 
             <div id="modal-ingredient" class="modal shadow-lg " tabindex="-1">
-                <div class="modal-dialog">
+                <div class="modal-dialog shadow-lg">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 id="modal-ingredient-title" class="modal-title"></h5>
@@ -185,10 +185,13 @@
                 list.appendChild(li)
             });
 
-            moreInfo.innerHTML = `
-                <p class="mb-0"><strong>Is alcoholic:</strong> ${drink.strAlcoholic}</p>
-                <p class="mb-0"><strong>Category:</strong> ${drink.strCategory}</p>
-                <p class="mb-0"><strong>Glass:</strong> ${drink.strGlass}</p>
+            let alcoholic = drink.strAlcoholic ? drink.strAlcoholic : "No alcohol"
+            let category = drink.strCategory ? drink.strCategory : "No category"
+            let glass = drink.strGlass ? drink.strGlass : "No glass"
+             moreInfo.innerHTML = `
+                <p class="mb-0"><strong>Is alcoholic:</strong> ${alcoholic}</p>
+                <p class="mb-0"><strong>Category:</strong> ${category}</p>
+                <p class="mb-0"><strong>Glass:</strong> ${glass}</p>
             `;
 
             instruction.innerHTML = `<p class="mb-0">${drink.strInstructions}</p>`;
@@ -221,10 +224,13 @@
 
         function cardIngredients(ingredient) {
             ingredientTitle.innerText = `${ingredient.strIngredient}`
+            let description = ingredient.strDescription ? ingredient.strDescription : "No description"
+            let abv = ingredient.strABV ? ingredient.strABV : "0"
+            let type = ingredient.strType ? ingredient.strType : "Without abv"
             ingredientBody.innerHTML = `
-                <p>${ingredient.strDescription}</p>
-                <p><strong>Low alcohol by volume:</strong> ${ingredient.strABV}</p>
-                <p><strong>Type:</strong> ${ingredient.strType}</p>
+                <p>${description}</p>
+                <p><strong>Low alcohol by volume:</strong> ${abv}</p>
+                <p><strong>Type:</strong> ${type}</p>
             `
         }
     </script>
