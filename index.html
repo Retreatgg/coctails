@@ -53,8 +53,9 @@
                                 data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div id="card-body-ingredient" class="modal-body">
-                            <p>Modal body text goes here.</p>
+                            
                         </div>
+                        <button id="btn" type="button" class="btn btn-outline-secondary">Search drinks</button>
                     </div>
                 </div>
             </div>
@@ -69,27 +70,12 @@
         let btn = document.getElementById("button-addon2");
         btn.addEventListener("click", function() {
             let name = document.getElementById("input").value;
-
-            fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${name}`)
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(data) {
-                if(data.drinks == null) {
-                     row.innerHTML = `<div class="text-center text-white fs-1 text-uppercase">Drinks by ${name} is not
-                        found</div>`
-                } else {
-                    row.innerHTML = ''
-                    for (const drink of data.drinks) {
-                        makeCard(drink)
-                    }
-                }
-            })
+            getCoctailsFetch(name, true)
         })
         
         const row = document.getElementById('row')
 
-        function makeCard(drink) {
+        async function makeCard(drink) {
             let col = document.createElement('div')
             col.className = 'col-sm-4'
 
@@ -117,14 +103,13 @@
             row.appendChild(col)
         }
 
-        function getCoctails() {
-            fetch('https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita')
+        async function getCoctails() {
+            await fetch('https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita')
            .then(function(response) {
                 return response.json(); 
             })
            .then(function(data) {
                 for (const drink of data.drinks) {
-                    console.log(drink)
                     makeCard(drink)
                 }
             })
@@ -138,7 +123,10 @@
             modal.style.display = 'none'
         }
 
-        function getInfoAboutCoctail(drink) {
+        async function getInfoAboutCoctail(drink) {
+            let ingredientsInfo = document.getElementById('main-info')
+            ingredientsInfo.innerHTML = ''
+
             modal.classList.add('show');
             modal.style.display = 'block';
 
@@ -157,13 +145,11 @@
                 ingredietns.push(info)
             }
 
-            console.log(ingredietns)
-
             title.innerHTML = `<strong>${drink.strDrink}</strong>`
             let ingredientsHTML = '';
-
+            list.innerHTML = ''
+            
             ingredietns.forEach(info => {
-                console.log(info)
                 let li = document.createElement('li')
                 li.className = 'list-group-item'
                 
@@ -172,10 +158,12 @@
                 imgCoctail.alt = `${info.ingredient}`
                 imgCoctail.style.height = '40px'
                 imgCoctail.style.width = '40px'
+
+                let measure = info.measure ? `(${info.measure})` : ''
                 
                 li.appendChild(imgCoctail)
                 let span = document.createElement('span')
-                span.textContent = `${info.ingredient} (${info.measure})`
+                span.textContent = `${info.ingredient} ${measure}`
                 li.appendChild(span)
 
                 li.addEventListener('click', () => {
@@ -193,10 +181,8 @@
                 <p class="mb-0"><strong>Category:</strong> ${category}</p>
                 <p class="mb-0"><strong>Glass:</strong> ${glass}</p>
             `;
-
-            instruction.innerHTML = `<p class="mb-0">${drink.strInstructions}</p>`;
-
-            
+            let instructions = drink.strInstructions ? drink.strInstructions : "No instruction"
+            instruction.innerHTML = `<p class="mb-0">${instructions}</p>`;
         }
 
         let modalIngredient = document.getElementById('modal-ingredient')
@@ -204,34 +190,86 @@
         let ingredientBody = document.getElementById('card-body-ingredient')
 
         function closeModalIngredient() {
-        modalIngredient.classList.remove('show')
-        modalIngredient.style.display = 'none'
+            modalIngredient.classList.remove('show')
+            modalIngredient.style.display = 'none'
         }
 
-        function geInfoAboutIngredient(name) {
+        async function geInfoAboutIngredient(name) {
+            console.log(name)
             modalIngredient.classList.add('show');
             modalIngredient.style.display = 'block';
 
             console.log(name)
-            fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?i=${name}`)
+            await fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?i=${name}`)
             .then(response => response.json())
             .then(data => {
-                console.log(data.ingredients)
                 cardIngredients(data.ingredients[0])
             })
             .catch(error => console.error('Error:', error));
         }
 
-        function cardIngredients(ingredient) {
+        async function cardIngredients(ingredient) {
             ingredientTitle.innerText = `${ingredient.strIngredient}`
             let description = ingredient.strDescription ? ingredient.strDescription : "No description"
             let abv = ingredient.strABV ? ingredient.strABV : "0"
             let type = ingredient.strType ? ingredient.strType : "Without abv"
+            let btn = document.getElementById('btn')
+
+            let imgIngredient = document.createElement('img')
+            imgIngredient.src = `https://www.thecocktaildb.com/images/ingredients/${ingredient.strIngredient}-Small.png`
+            imgIngredient.alt = `${ingredient.strIngredient}`
+            imgIngredient.style.height = '100px'
+            imgIngredient.style.width = '100px'
+
             ingredientBody.innerHTML = `
                 <p>${description}</p>
                 <p><strong>Low alcohol by volume:</strong> ${abv}</p>
                 <p><strong>Type:</strong> ${type}</p>
             `
+            ingredientBody.appendChild(imgIngredient)
+
+            btn.addEventListener('click', () => {
+                getDrinkByIngredient(ingredient.strIngredient)
+                closeModal()
+                closeModalIngredient()
+            })
+        }
+
+        async function getDrinkByIngredient(ingredientName) {
+        console.log(ingredientName)
+        await fetch(`https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredientName}`)
+        .then(response => response.json())
+        .then(async data => {
+            if(data.drinks == null) {
+                row.innerHTML = `<div class="text-center text-white fs-1 text-uppercase">Drinks by ${name} is not found</div>`
+            } else {
+                row.innerHTML = ''
+                let isClean = true; // Объявление переменной isClean
+                for (const drink of data.drinks) {
+                    console.log(drink.strDrink)
+                    await getCoctailsFetch(drink.strDrink, isClean) // Добавлено await здесь
+                    isClean = false
+                }
+            }   
+        })
+        .catch(error => console.error('Error:', error));
+        }
+
+
+        async function getCoctailsFetch(name, isClean) {
+            await fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${name}`)
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+            if(data.drinks == null) {
+                row.innerHTML = `<div class="text-center text-white fs-1 text-uppercase">Drinks by ${name} is not found</div>`
+            } else {
+                if(isClean == true) row.innerHTML = ''
+                for (const drink of data.drinks) {
+                    makeCard(drink)
+                }
+            }})
         }
     </script>
 
